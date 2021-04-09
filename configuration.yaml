@@ -1,0 +1,386 @@
+default_config:
+
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Australia/Perth
+
+# Enables the frontend
+frontend:
+
+#Enables system health checker
+system_health:
+
+homekit:
+  filter:
+    include_domains:
+      - light
+    include_entities:
+      - light.finns_bedroom
+      - media_player.finns_bedroom_speaker
+      - switch.ender3
+      - switch.lamp
+      - switch.lamp_2
+      - swtich.desk_lamp
+      - switch.heater
+      - switch.motion_sensor
+      - switch.rgb_strip_on_and_off
+      - fan.0233188550029141f516
+
+
+
+#api
+api:
+
+#IOS
+ios:
+
+# Enables configuration UI
+config:
+
+#mqtt:
+#  discovery: true
+#  discovery_prefix: homeAssistant
+#  username: !secret mqtt_username
+#  password: !secret mqtt_password
+
+
+http:
+  #base_url: https://finnmo.duckdns.org:8123
+  ssl_certificate: /ssl/fullchain.pem
+  ssl_key: /ssl/privkey.pem
+
+updater:
+# Optional, allows Home Assistant developers to focus on popular components.
+# include_used_components: true
+
+# Discover some devices automatically
+discovery:
+
+# Allows you to issue voice commands from the frontend in enabled browsers
+conversation:
+
+# Enables support for tracking state changes over time
+history:
+
+# View all events in a logbook
+logbook:
+
+# Enables a map showing the location of tracked devices
+map:
+
+wake_on_lan:
+
+# Track the sun
+sun:
+
+logger:
+
+recorder:
+  auto_purge: true
+  db_url: 'sqlite:///:memory:'  # Set log to use memory, not SD card
+
+tts:
+  - platform: google_translate
+    service_name: google_say
+    base_url: https://finnmo.duckdns.org:8123
+
+input_select:
+  pcoptions:
+    name: PC Power Options
+    options:
+      - Restart
+      - Shutdown
+      - None
+      - Sleep
+      - Hibernate
+    initial: None
+    icon: mdi:desktop-tower
+
+timer:
+  asleep:
+    duration: "00:10:00"
+
+sensor:
+  # IN BED COUNTER
+  - platform: history_stats
+    name: In Bed today
+    entity_id: binary_sensor.finn_in_bed
+    state: 'on'
+    type: time
+    start: '{{ now().replace(hour=0, minute=0, second=0) }}'
+    end: '{{ now() }}'
+
+  #RESTFULAPI
+  - platform: rest
+    resource: !secret RestAPIURL
+    username: !secret RestAPIUser
+    password: !secret RestAPIpass
+    authentication: basic
+    headers:
+      User-Agent: Home Assistant
+      Content-Type: application/json
+
+
+
+  #MQTT
+  - platform: mqtt
+    state_topic: "FinnHassio"
+    name: "Generic Mqtt"
+
+  - platform: mqtt
+    state_topic: 'home/bedroom/bed/load'
+    name: "Raw Bed Weight Measurement"
+    
+  - platform: mqtt
+    name: "Raw Chair Measurement"
+    state_topic: "home/bedroom/chair"
+    
+  - platform: mqtt
+    name: "At Desk"
+    state_topic: "home/bedroom/desk"
+
+  - platform: mqtt
+    name: "RGB Strip IR Reciever"
+    state_topic: 'HassioIRServer/received'
+    value_template: "{{ value.split(',')[1] }}"
+    
+
+  - platform: template
+    sensors:
+      3d_printer_switch_total_kwh:
+        friendly_name_template: "{{ states.switch.ender3.name}} Total Consumption"
+        value_template: '{{ states.switch.ender3.attributes["total_energy_kwh"] | float }}'
+        unit_of_measurement: 'kWh'
+      heater_switch_total_kwh:
+        friendly_name_template: "{{ states.switch.heater.name}} Total Consumption"
+        value_template: '{{ states.switch.heater.attributes["total_energy_kwh"] | float }}'
+        unit_of_measurement: 'kWh'
+      total_energy_dollars:
+        value_template: "$ {{ ((states('sensor.heater_switch_total_kwh') | float + states('sensor.3d_printer_switch_total_kwh') | float) * 0.262026) | float | round(5)}}"
+
+      # BEd States template values
+      bed_state:
+        friendly_name: "Bed State"
+        value_template: >
+          {% if states('sensor.raw_bed_weight_measurement')|float > 90  %}
+            Two People In Bed
+          {% elif states('sensor.raw_bed_weight_measurement')| float >  10 %}
+            One Person In Bed
+          {% elif states('sensor.raw_bed_weight_measurement')| float <  10 %}
+            No One in Bed
+          {% else %}
+            Error
+          {% endif %}
+
+      # DESK STATES
+      at_deska:
+        friendly_name: "At Desk"
+        value_template: >
+          {% if states('sensor.desk_temperature')|float > 26.5  %}
+            Yes
+          {% elif states('sensor.desk_temperature')| float <  26.5 %}
+            No
+          {% else %}
+            Error
+          {% endif %}
+#PERSON
+person:
+
+# Cloud
+cloud:
+
+mobile_app:
+
+############################################# MY DEVICES ################################################
+
+#HUE REMOTE
+remote:
+  - platform: hueremote
+
+
+binary_sensor:
+  #FLIC
+  - platform: flic
+    discovery: true
+
+  #ENDER 3 PROGRESS
+  - platform: octoprint
+    monitored_conditions:
+      - Printing
+      - Printing Error
+
+      #Template binary SENSORS
+      #  - platform: template
+      #    sensors:
+
+
+#AUGUST
+august:
+  login_method: phone
+  username: !secret august_username
+  password: !secret august_password
+
+#TP-LINK
+tplink:
+  discovery: false
+  switch:
+   #- host: !secret caelans_fan_switch_host
+    - host: !secret 3dprinter_switch_host
+    - host: !secret lamp_2_switch_host
+    - host: !secret heater_switch_host
+    - host: !secret lamp_switch_host
+    - host: !secret desk_lamp_host
+
+switch:
+  #MOTION SENSOR
+  - platform: command_line
+    switches:
+      motion_sensor:
+        friendly_name: "Motion Sensor"
+        command_on: !secret hue_sensor_on
+        command_off: !secret hue_sensor_off
+        value_template: "{{states.sensor.finns_motion_motion_sensor.attributes.on}}"
+
+  - platform: command_line
+    switches:
+      connect_octoprint:
+        friendly_name: "Connect Octoprint"
+        command_on: !secret connect_command_on
+        command_off: !secret connect_command_off
+        value_template: "{% if is_state('sensor.octoprint_current_state', 'unknown') %}false{% else %}true{% endif %}"
+
+  - platform: wake_on_lan
+    mac: 'E6:5E:37:CB:B6:87'
+    name: wol
+    host: 10.1.3.153
+    turn_off:
+      service: shell_command.sleep_z800
+
+  - platform: mqtt
+    name: "RGB Strip: On and Off"
+    command_topic: "ir_server/send"
+    payload_on: "3,0xF7C03F,32"
+    payload_off: "3,0xF740BF,32"
+    qos: 0
+    retain: false
+
+  - platform: mqtt
+    name: "RGB Strip: Red and Blue"
+    command_topic: "ir_server/send"
+    payload_on: "3,0xF720DF,32"
+    payload_off: "3,0xF7609F,32"
+    qos: 0
+    retain: false
+
+  #SERVO MOVMENT
+  - platform: mqtt
+    name: "Home and Away"
+    command_topic: "FinnHassio"
+    payload_on: "33"
+    payload_off: "130"
+    qos: 0
+    retain: false
+
+  - platform: mqtt
+    name: "Work and Travelling"
+    command_topic: "FinnHassio"
+    payload_on: "175"
+    payload_off: "80"
+    qos: 0
+    retain: false
+
+mysensors:
+  gateways:
+    - device: mqtt     # persistence_file: 'mysensors/mqttGateway.json'
+      persistence_file: 'mysensors/mqttGateway.json'
+      topic_in_prefix: 'home/bedroom/desk/out'
+      topic_out_prefix: 'home/bedroom/desk/in'
+      baud_rate: 9600
+  optimistic: false
+  persistence: true
+  retain: true
+
+
+#BLANK SWITCH
+input_boolean:
+  asleep:
+    name: Asleep
+    icon: mdi:bed
+  pre_bed:
+    name: Pre Bed
+    icon: mdi:Bed
+
+#Solve hue lights not appearing in ha
+hue:
+  bridges:
+    - host: !secret hue_host_bridge
+
+#KMART FAN
+fan:
+- platform: mqtt  
+  name: "Finns Fan"
+  command_topic: "home/bedroom/fan/cmnd/POWER"
+  speed_command_topic: "home/bedroom/fan/cmnd/tuyasend4"    
+  state_topic: "home/bedroom/fan/stat/RESULT"
+  speed_state_topic: "home/bedroom/fan/stat/RESULT"
+  oscillation_command_topic: "home/bedroom/fan/cmnd/tuyasend4"
+  oscillation_state_topic: "home/bedroom/fan/tele/RESULT"
+  state_value_template: "{{ value_json.POWER }}"
+  speed_value_template: "{{ value_json.TuyaEnum4 }}"
+  oscillation_value_template: "{{ value_json.DpIdData }}"
+  availability_topic: "home/bedroom/fan/tele/LWT"
+  payload_off: "OFF"
+  payload_on: "ON"
+  payload_low_speed: "3,1"
+  payload_medium_speed: "3,4"
+  payload_high_speed: "3,7"
+  payload_available: "Online"
+  payload_not_available: "Offline"
+  payload_oscillation_off: "4,0"
+  payload_oscillation_on: "4,1"
+  speeds:
+    - "off"
+    - "low"
+    - "medium"
+    - "high"
+
+#Wemo Switch
+wemo:
+  static:
+    - !secret wemo_host
+
+#ENDER 3
+octoprint:
+  host: !secret octopi_host
+  api_key: !secret octopi_api
+  name: Ender 3
+
+device_tracker:
+  - platform: nmap_tracker
+    hosts: !secret device_tracker_ip_range
+    exclude: !secret device_tracker_localhost
+
+    #
+    #life360:
+    #  accounts:
+    #    username: !secret life360_username
+    #    password: !secret life360_password
+    # max_gps_accuracy: 200
+    #prefix: life360
+    #  show_as_state: [driving, moving]
+
+#IP CAMERA
+
+
+group: !include groups.yaml
+script: !include scripts.yaml
+automation: !include automations.yaml

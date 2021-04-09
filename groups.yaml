@@ -1,0 +1,122 @@
+default_view:
+    icon: mdi:home
+    entities:
+      - group.octo_print
+      - group.finnsbedroom
+      - group.location
+      - group.caelans_bedroom
+      - sensor.raw_master_bed_weight_measurement
+      - sensor.finns_motion_motion_sensor
+      - sensor.temperature
+      - binary_sensor.front_door_doorbell_motion
+      - switch.home_and_away
+      - switch.work_and_travelling
+      - lock.front_door
+      - camera.front_door_doorbell
+      - person.finn
+      - person.finn_2
+
+
+octo_print:
+    name: Ender 3
+    entities:
+        - binary_sensor.ender_3_printing
+        - sensor.ender_3_job_percentage
+        - sensor.ender_3_target_tool0_temp
+        - sensor.ender_3_target_bed_temp
+        - sensor.ender_3_time_elapsed
+        - sensor.ender_3_time_remaining
+        - switch.3d_printer
+        - switch.lamp_2
+        - automation.turn_off_printer_when_done
+
+location:
+  name: Location
+  entities:
+    - device_tracker.finn_one6plus
+    - device_tracker.oneplus6_geek_me
+    
+
+
+finnsbedroom:
+    name: Finns Bedroom
+    entities:
+      - sensor.raw_master_bed_weight_measurement
+      - binary_sensor.finn_in_bed
+      - binary_sensor.noone_in_bed
+      - switch.motion_sensor
+      - light.finns_bedroom
+      - fan.finns_fan
+      - switch.fan
+      - switch.lamp
+      - media_player.finns_bedroom_speaker
+
+caelans_bedroom:
+    name: Caelans Bedroom
+    entities:
+      - switch.shed_power
+      - light.caelans_bedroom
+
+all_sensors:
+    name: House
+    entities:
+      - binary_sensor.flic_80e4da713ef5
+      - binary_sensor.flic_80e4da72dea2
+      - binary_sensor.flic_80e4da72eea9
+      - binary_sensor.flic_80e4da7377e9
+      - sensor.dark_sky_icon
+      - sensor.dark_sky_summary
+      - sensor.dark_sky_temperature
+      - sensor.date
+      - sensor.date_2
+      - sensor.time
+      - sensor.time_2
+      - sensor.yr_symbol
+      - sensor.temperature
+
+automations:
+    name: Automation
+    entities:
+      - automation.bedtime
+      - automation.check_light_state_and_show_notification
+      - automation.daily_backup_at_3_am
+      - automation.leaving_trigger
+      - automation.light_off_before_school
+      - automation.motion_sensor_1
+      - automation.motion_sensor_2
+      - automation.motion_sensor_3
+      - automation.motion_sensor_4
+      - automation.toggle_caelans_desklamp_on_double_of_caelans_button
+      - automation.toggle_caelans_lamp_on_double_of_caelans_button
+      - automation.toggle_caelans_light_on_click_of_caelans_button
+      - automation.toggle_fan_on_hold_of_billy
+      - automation.toggle_fan_on_hold_of_oliver
+      - automation.toggle_heater_on_double_click_of_oliver
+      - automation.toggle_lamp_on_double_click_of_billy
+      - automation.toggle_lamp_on_double_click_of_oliver
+      - automation.toggle_main_light_on_single_click_of_billy
+      - automation.toggle_main_light_on_single_click_of_jason
+      - automation.toggle_main_light_on_single_click_of_oliver
+      - automation.turn_off_camera_when_i_am_home
+      - automation.turn_off_everything_when_i_am_away
+      - automation.turn_off_main_light_with_double_click
+
+flic:
+    name: Flic
+    entities:
+      - binary_sensor.flic_80e4da713ef5
+      - binary_sensor.flic_80e4da72dea2
+      - binary_sensor.flic_80e4da72eea9
+      - binary_sensor.flic_80e4da7377e9
+
+      
+media_players:
+    name: Media
+    entities:
+      - media_player.finnsbedroom_speaker
+      - media_player.living_room_speaker
+      - media_player.spotify
+      - media_player.living_room
+      - media_player.kitchen_speaker
+      - media_player.home_group
+      - media_player.caelan_speaker

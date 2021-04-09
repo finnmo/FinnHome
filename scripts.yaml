@@ -1,0 +1,41 @@
+#HomeAssistant Restart
+homeassistantrestart:
+  alias: 'Restart Homeassistant'
+  sequence:
+  - service: homeassistant.restart
+
+home:
+  alias: Finn Home
+  sequence:
+    - service: rest_command.turnonmotion
+
+gitupdate:
+  alias: gitupdate
+  sequence:
+    - service: shell_command.gitupdate
+
+dropboxbackup:
+  alias: Dropbox Backup
+  sequence:
+    - service: hassio.addon_stdin
+      data_template: {"addon":"7be23ff5_dropbox_sync","input":{"command":"upload"}}
+
+lightsensor:
+  alias: Light and sensor off
+  sequence:
+    - alias: sensor off
+      service: switch.turn_off
+      data:
+        entity_id: switch.motion_sensor
+    - alias: Light off
+      service: light.turn_off
+      data:
+        entity_id: light.finns_bedroom
+        
+bed_weight_tare:
+  alias: Tare
+  sequence: 
+    service: mqtt.publish
+    data:
+      topic: home/bedroom/bed/tare
+      payload: 0

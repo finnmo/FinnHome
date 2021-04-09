@@ -1,0 +1,459 @@
+######################################
+#                                    #
+#           BED SENSOR               #
+#                                    #
+######################################
+# GETTING ON THE BED:
+
+#During the day
+- alias: Bed Sensor Automation 1
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'One Person In Bed'
+      from: 'No One in Bed'
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'Two People In Bed'
+      from: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'on'
+  action:
+    - service: light.turn_on
+      entity_id: light.finns_bedroom
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+
+#To activate pre-bed
+- alias: Bed Sensor Automation 2
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'One Person In Bed'
+      from: 'No One in Bed'
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'Two People In Bed'
+      from: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: time
+      before: '4:00:00'
+      after: '20:00:00'
+  action:
+    - service: light.turn_off
+      entity_id: light.finns_bedroom
+    - service: switch.turn_on
+      entity_id: switch.lamp
+    - service: switch.turn_off
+      entity_id: switch.desk_lamp  
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.pre_bed
+
+#During the Night
+- alias: Bed Sensor Automation 3
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'One Person In Bed'
+      from: 'No One in Bed'
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'Two People In Bed'
+      from: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+  action:
+    - service: light.turn_off
+      entity_id: light.finns_bedroom
+    - service: switch.turn_off
+      entity_id: switch.lamp
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+
+#Trigger asleep
+- alias: Bed Sensor Automation 4
+  trigger:
+    - platform: state
+      entity_id: switch.lamp
+      to: 'off'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'on'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+  action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.asleep
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.pre_bed
+    
+# GETTING OFF THE BED:
+
+#During the day
+- alias: Bed Sensor Automation 5
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: light.finns_bedroom
+    - service: switch.turn_on
+      entity_id: switch.motion_sensor
+
+#During the Night
+- alias: Bed Sensor Automation 6
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: time
+      before: '4:00:00'
+      after: '20:00:00'
+  action:
+    - service: light.turn_off
+      entity_id: light.finns_bedroom
+    - service: switch.turn_on
+      entity_id: switch.lamp
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+
+#Deactivate Asleep
+- alias: Bed Sensor Automation 7
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'off'
+    - condition: time
+      before: '12:00:00'
+      after: '4:00:00'
+  action:
+    - service: light.turn_on
+      entity_id: light.finns_bedroom
+    - service: switch.turn_on
+      entity_id: switch.motion_sensor
+    - service: switch.turn_off
+      entity_id: switch.lamp
+    - service: timer.start
+      entity_id: timer.asleep
+    - service: input_boolean.turn_off
+      entity_id: input_boolean.asleep
+
+#Getting back in bed while timer running
+- alias: Bed Sensor Automation 8
+  trigger:
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'One Person In Bed'
+      from: 'No One in Bed'
+    - platform: state
+      entity_id: sensor.bed_state
+      to: 'Two People In Bed'
+      from: 'No One in Bed'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: time
+      before: '12:00:00'
+      after: '4:00:00'
+    - condition: state
+      entity_id: timer.asleep
+      state: 'active'
+  action:
+    - service: light.turn_off
+      entity_id: light.finns_bedroom
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: switch.turn_off
+      entity_id: switch.lamp
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.asleep
+    - service: timer.cancel
+      entity_id: timer.asleep
+
+
+######################################
+#                                    #
+#           DESK SENSOR              #
+#                                    #
+######################################
+# GETTING ON DESK
+#During the day
+- alias: Desk Sensor Automation 1
+  trigger:
+    - platform: state
+      entity_id: sensor.at_desk
+      to: 'Yes'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: light.finns_bedroom
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: switch.turn_on
+      entity_id: switch.desk_lamp
+
+#Getting in Desk during the night
+- alias: Desk Sensor Automation 2
+  trigger:
+    - platform: state
+      entity_id: sensor.at_desk
+      to: 'Yes'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+  action:
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: switch.turn_on
+      entity_id: switch.desk_lamp
+    - service: switch.turn_off
+      entity_id: switch.lamp
+
+#Getting on desk in winter
+- alias: Desk Sensor Automation 3
+  trigger:
+    - platform: state
+      entity_id: sensor.at_desk
+      to: 'Yes'
+  condition:
+    - condition: numeric_state
+      entity_id: sensor.finns_motion_sensor_temperature
+      below: '14'
+  action:
+    - service: switch.turn_on
+      entity_id: switch.heater
+
+
+#GETTING OFF DESK
+#During the day
+- alias: Desk Sensor Automation 4
+  trigger:
+    - platform: state
+      entity_id: sensor.at_desk
+      to: 'No'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'off'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+  action:
+    - service: light.turn_on
+      entity_id: light.finns_bedroom
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: switch.turn_off
+      entity_id: switch.desk_lamp
+    - service: switch.turn_off
+      entity_id: switch.heater
+
+
+#Desk during the night
+- alias: Desk Sensor Automation 5
+  trigger:
+    - platform: state
+      entity_id: sensor.at_desk
+      to: 'No'
+  condition:
+    - condition: state
+      entity_id: input_boolean.asleep
+      state: 'on'
+    - condition: state
+      entity_id: input_boolean.pre_bed
+      state: 'off'
+  action:
+    - service: switch.turn_off
+      entity_id: switch.motion_sensor
+    - service: switch.turn_off
+      entity_id: switch.desk_lamp
+    - service: switch.turn_on
+      entity_id: switch.lamp
+    - service: switch.turn_off
+      entity_id: switch.heater
+
+######################################
+#                                    #
+#           POWER SAVING             #
+#                                    #
+######################################
+
+#Turning things off
+- alias: Power Saving Fan OFF
+  trigger:
+    - platform: state
+      entity_id: light.finns_bedroom
+      to: 'off'
+  condition:
+    - condition: state
+      entity_id: binary_sensor.finns_motion_sensor_motion
+      state: 'off'
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'on'
+    - condition: state
+      entity_id: sensor.bed_state
+      state: 'No One in Bed'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: state
+      entity_id: fan.finns_fan
+      state: 'on'
+  action:
+    - service: fan.turn_off
+      entity_id: fan.finns_fan
+
+- alias: Power Saving Lamp OFF
+  trigger:
+    - platform: state
+      entity_id: light.finns_bedroom
+      to: 'off'
+  condition:
+    - condition: state
+      entity_id: binary_sensor.finns_motion_sensor_motion
+      state: 'off'
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'on'
+    - condition: state
+      entity_id: sensor.bed_state
+      state: 'No One in Bed'
+    - condition: state
+      entity_id: sensor.at_desk
+      state: 'No'
+    - condition: state
+      entity_id: switch.lamp
+      state: 'on'
+  action:
+    - service: switch.turn_off
+      entity_id: switch.lamp
+
+
+#Turning things on
+- alias: Power Saving Lamp ON
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.finns_motion_sensor_motion
+      to: 'on'
+  condition:
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'on'
+    - condition: state
+      entity_id: switch.lamp
+      state: 'off'
+    - condition: template
+      value_template: '{{ as_timestamp(now()) | int  - as_timestamp(states.automation.power_saving_lamp_off.attributes.last_triggered) | int < 300 }}'
+  action:
+    - service: switch.turn_on
+      entity_id: switch.lamp
+
+- alias: Power Saving fan ON
+  trigger:
+    - platform: state
+      entity_id: binary_sensor.finns_motion_sensor_motion
+      to: 'on'
+  condition:
+    - condition: state
+      entity_id: switch.motion_sensor
+      state: 'on'
+    - condition: state
+      entity_id: fan.finns_fan
+      state: 'off'
+    - condition: template
+      value_template: '{{ as_timestamp(now()) | int  - as_timestamp(states.automation.power_saving_fan_off.attributes.last_triggered) | int < 300 }}'
+  action: 
+    - service: fan.turn_on
+      entity_id: fan.finns_fan
