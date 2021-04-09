@@ -1,0 +1,2 @@
+# FinnHome
+HomeAssistant config
