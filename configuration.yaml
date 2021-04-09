@@ -33,8 +33,7 @@ homekit:
       - switch.heater
       - switch.motion_sensor
       - switch.rgb_strip_on_and_off
-      - fan.0233188550029141f516
-
+      - fan.finns_fan
 
 
 #api
