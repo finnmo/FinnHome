@@ -10,7 +10,7 @@ homeassistant:
   elevation: 0
   # metric for Metric, imperial for Imperial
   unit_system: metric
-  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_dasabase_time_zones
   time_zone: Australia/Perth
 
 # Enables the frontend
@@ -18,6 +18,7 @@ frontend:
 
 #Enables system health checker
 system_health:
+
 
 homekit:
   filter:
@@ -33,7 +34,8 @@ homekit:
       - switch.heater
       - switch.motion_sensor
       - switch.rgb_strip_on_and_off
-      - fan.finns_fan
+      - fan.0233188550029141f516
+
 
 
 #api
@@ -53,9 +55,6 @@ config:
 
 
 http:
-  #base_url: https://finnmo.duckdns.org:8123
-  ssl_certificate: /ssl/fullchain.pem
-  ssl_key: /ssl/privkey.pem
 
 updater:
 # Optional, allows Home Assistant developers to focus on popular components.
@@ -82,15 +81,12 @@ wake_on_lan:
 sun:
 
 logger:
+  default: debug
 
 recorder:
   auto_purge: true
   db_url: 'sqlite:///:memory:'  # Set log to use memory, not SD card
 
-tts:
-  - platform: google_translate
-    service_name: google_say
-    base_url: https://finnmo.duckdns.org:8123
 
 input_select:
   pcoptions:
@@ -103,10 +99,6 @@ input_select:
       - Hibernate
     initial: None
     icon: mdi:desktop-tower
-
-timer:
-  asleep:
-    duration: "00:10:00"
 
 sensor:
   # IN BED COUNTER
@@ -140,9 +132,10 @@ sensor:
     name: "Raw Bed Weight Measurement"
     
   - platform: mqtt
-    name: "Raw Chair Measurement"
-    state_topic: "home/bedroom/chair"
-    
+    state_topic: 'home/bedroom/lamp'
+    name: "Lamp Switch"
+
+
   - platform: mqtt
     name: "At Desk"
     state_topic: "home/bedroom/desk"
@@ -151,7 +144,6 @@ sensor:
     name: "RGB Strip IR Reciever"
     state_topic: 'HassioIRServer/received'
     value_template: "{{ value.split(',')[1] }}"
-    
 
   - platform: template
     sensors:
@@ -170,7 +162,7 @@ sensor:
       bed_state:
         friendly_name: "Bed State"
         value_template: >
-          {% if states('sensor.raw_bed_weight_measurement')|float > 90  %}
+          {% if states('sensor.raw_bed_weight_measurement')|float > 60 %}
             Two People In Bed
           {% elif states('sensor.raw_bed_weight_measurement')| float >  10 %}
             One Person In Bed
@@ -181,16 +173,18 @@ sensor:
           {% endif %}
 
       # DESK STATES
-      at_deska:
-        friendly_name: "At Desk"
+      finn_at_desk:
+        friendly_name: "Finn at Desk"
         value_template: >
-          {% if states('sensor.desk_temperature')|float > 26.5  %}
+          {%if is_state('binary_sensor.chair_sensor_mini_111_0', 'on') %}
             Yes
-          {% elif states('sensor.desk_temperature')| float <  26.5 %}
+          {%elif is_state('binary_sensor.chair_sensor_mini_111_0', 'off') %}
             No
           {% else %}
             Error
           {% endif %}
+      
+
 #PERSON
 person:
 
@@ -199,17 +193,16 @@ cloud:
 
 mobile_app:
 
-############################################# MY DEVICES ################################################
 
-#HUE REMOTE
-remote:
-  - platform: hueremote
+  
+
+############################################# MY DEVICES ################################################
 
 
 binary_sensor:
   #FLIC
-  - platform: flic
-    discovery: true
+ # - platform: flic
+ #   discovery: true
 
   #ENDER 3 PROGRESS
   - platform: octoprint
@@ -258,11 +251,9 @@ switch:
         value_template: "{% if is_state('sensor.octoprint_current_state', 'unknown') %}false{% else %}true{% endif %}"
 
   - platform: wake_on_lan
-    mac: 'E6:5E:37:CB:B6:87'
-    name: wol
-    host: 10.1.3.153
-    turn_off:
-      service: shell_command.sleep_z800
+    mac: "2C:F0:5D:3B:65:70"
+    name: "Wake-up PC"
+    host: 10.1.3.121
 
   - platform: mqtt
     name: "RGB Strip: On and Off"
@@ -277,6 +268,14 @@ switch:
     command_topic: "ir_server/send"
     payload_on: "3,0xF720DF,32"
     payload_off: "3,0xF7609F,32"
+    qos: 0
+    retain: false
+    
+  - platform: mqtt
+    name: "PC Sleep and Wake"
+    command_topic: "home/bedroom/pc"
+    payload_on: "wake"
+    payload_off: "sleep"
     qos: 0
     retain: false
 
@@ -296,6 +295,15 @@ switch:
     payload_off: "80"
     qos: 0
     retain: false
+    
+  - platform: mqtt
+    name: "Shutter Up"
+    command_topic: "home/bedroom/shutter"
+    payload_on: "1"
+    payload_off: "2"
+    qos: 0
+    retain: false
+  
 
 mysensors:
   gateways:
@@ -317,7 +325,35 @@ input_boolean:
   pre_bed:
     name: Pre Bed
     icon: mdi:Bed
+  desk_switch:
+    name: Desk Switch
+    icon: mdi:Bed
+  bed_switch:
+    name: Bed Switch
+    icon: mdi:Bed
+    
+  desk_timer_enabled:
+    name: "Desk Timer Switch"
+    initial: on
+    icon: mdi:timelapse
+    
+input_number:
+  shutter1:
+    name: Shutter Slider
+    initial: 0
+    min: 0
+    max: 100
+    step: 1
 
+#Timer/SLiders
+timer:
+  left_desk:
+    duration: "00:02:00"
+  heater_timer:
+    duration: "00:02:00"
+  desk_lamp_timer:
+    duration: "00:02:00"
+    
 #Solve hue lights not appearing in ha
 hue:
   bridges:
@@ -383,3 +419,4 @@ device_tracker:
 group: !include groups.yaml
 script: !include scripts.yaml
 automation: !include automations.yaml
+python_script:
