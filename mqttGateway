@@ -1,0 +1,88 @@
+{
+    "101": {
+        "sensor_id": 101,
+        "children": {
+            "3": {
+                "id": 3,
+                "type": 0,
+                "description": "",
+                "values": {
+                    "16": "1"
+                }
+            }
+        },
+        "type": 17,
+        "sketch_name": "ButtonTest",
+        "sketch_version": "1.0",
+        "battery_level": 0,
+        "protocol_version": "2.3.2",
+        "heartbeat": 0
+    },
+    "1": {
+        "sensor_id": 1,
+        "children": {
+            "0": {
+                "id": 0,
+                "type": 1,
+                "description": "Chair Sensor 1",
+                "values": {
+                    "16": "1"
+                }
+            }
+        },
+        "type": 17,
+        "sketch_name": "Chair Sensor",
+        "sketch_version": "1.0",
+        "battery_level": 100,
+        "protocol_version": "2.3.2",
+        "heartbeat": 0
+    },
+    "202": {
+        "sensor_id": 202,
+        "children": {
+            "0": {
+                "id": 0,
+                "type": 1,
+                "description": "Chair Sensor 1",
+                "values": {
+                    "16": "1"
+                }
+            }
+        },
+        "type": 17,
+        "sketch_name": "Chair Sensor MINI",
+        "sketch_version": "1.0",
+        "battery_level": 100,
+        "protocol_version": "2.3.2",
+        "heartbeat": 0
+    },
+    "0": {
+        "sensor_id": 0,
+        "children": {},
+        "type": 18,
+        "sketch_name": null,
+        "sketch_version": null,
+        "battery_level": 0,
+        "protocol_version": "2.3.2",
+        "heartbeat": 0
+    },
+    "111": {
+        "sensor_id": 111,
+        "children": {
+            "0": {
+                "id": 0,
+                "type": 1,
+                "description": "Chair Sensor MINI",
+                "values": {
+                    "16": "1"
+                }
+            }
+        },
+        "type": 17,
+        "sketch_name": "Chair Sensor MINI",
+        "sketch_version": "1.0",
+        "battery_level": 78,
+        "protocol_version": "2.3.2",
+        "heartbeat": 0
+    }
+}
