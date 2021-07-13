@@ -39,3 +39,8 @@ bed_weight_tare:
     data:
       topic: home/bedroom/bed/tare
       payload: 0
+      
+wakeup_pc:
+  sequence:
+    - service: switch.turn_on
+      entity_id: switch.wakeup_pc
