@@ -1,3 +1,117 @@
+################### SHUTTER SLIDER ##################################
+- alias: "Shutter 1 Slider Adjust"
+  trigger:
+    platform: state
+    entity_id: input_number.shutter1
+  action:
+  - service: mqtt.publish
+    topic: home/bedroom/shutter
+    payload: 1
+###################CAP TOUCH LAMP#####################################
+- alias: Lamp Touch
+  trigger:
+    platform: state
+    entity_id: sensor.lamp_switch
+  condition:
+    - condition: state
+      entity_id: sensor.bed_state
+      state: 'One Person In Bed'
+  action:
+    - service: switch.toggle
+      entity_id: switch.lamp
+
+- alias: Bed switch on
+  trigger:
+    platform: state
+    entity_id: input_boolean.bed_switch
+    to: 'on'
+  action:
+    - service: python_script.set_state
+      data_template:
+        entity_id: sensor.bed_state
+        state: 'One Person In Bed'
+
+###################ROOM STATE SWITCHES ############################################
+
+#- alias: Bed switch off
+#  trigger:
+#    platform: state
+#    entity_id: input_boolean.bed_switch
+#    to: 'off'
+#  condition:
+#    - condition: state
+#      entity_id: input_boolean.asleep
+#      state: 'off'
+#  action:
+#    - service: python_script.set_state
+#      data_template:
+#        entity_id: sensor.bed_state
+#        state: 'No One in Bed'
+
+- alias: Desk switch on
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'on'
+  action:
+    - service: python_script.set_state
+      data_template:
+        entity_id: sensor.at_desk
+        state: 'Yes'
+
+- alias: Desk switch off
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'off'
+  action:
+    - service: python_script.set_state
+      data_template:
+        entity_id: sensor.at_desk
+        state: 'No'
+
+#######################################################
+#- alias: Reverse Bed switch on
+#  trigger:
+#    platform: state
+#    entity_id: sensor.bed_state
+#    to: 'One Person In Bed'
+#  action:
+#    - service: input_boolean.turn_on
+#      entity_id: input_boolean.bed_switch
+#      state: 'on'
+
+#- alias: Reverse Bed switch off
+#  trigger:
+#    platform: state
+#    entity_id: sensor.bed_state
+#    to: 'No One in Bed'
+#  action:
+#    - service: input_boolean.turn_off
+#      entity_id: input_boolean.bed_switch
+#      state: 'off'
+
+- alias: Reverse Desk switch on
+  trigger:
+    platform: state
+    entity_id: sensor.at_desk
+    to: 'Yes'
+  action:
+    - service: input_boolean.turn_on
+      entity_id: input_boolean.desk_switch
+      state: 'Yes'
+
+- alias: Reverse Desk switch off
+  trigger:
+    platform: state
+    entity_id: sensor.at_desk
+    to: 'No'
+  action:
+    - service: input_boolean.turn_off
+      data_template:
+        entity_id: input_boolean.desk_switch
+        state: 'off'
+
 ######################################
 #                                    #
 #           BED SENSOR               #
@@ -64,6 +178,8 @@
       entity_id: light.finns_bedroom
     - service: switch.turn_on
       entity_id: switch.lamp
+    - service: switch.turn_off
+      entity_id: switch.heater
     - service: switch.turn_off
       entity_id: switch.desk_lamp  
     - service: switch.turn_off
@@ -271,6 +387,9 @@
     - condition: state
       entity_id: input_boolean.pre_bed
       state: 'off'
+    - condition: state
+      entity_id: switch.heater
+      state: 'off'
   action:
     - service: light.turn_on
       entity_id: light.finns_bedroom
@@ -291,6 +410,9 @@
       state: 'on'
     - condition: state
       entity_id: input_boolean.pre_bed
+      state: 'off'
+    - condition: state
+      entity_id: switch.heater
       state: 'off'
   action:
     - service: switch.turn_off
@@ -332,7 +454,7 @@
   action:
     - service: light.turn_on
       entity_id: light.finns_bedroom
-    - service: switch.turn_off
+    - service: switch.turn_on
       entity_id: switch.motion_sensor
     - service: switch.turn_off
       entity_id: switch.desk_lamp
@@ -353,6 +475,9 @@
     - condition: state
       entity_id: input_boolean.pre_bed
       state: 'off'
+    - condition: state
+      entity_id: switch.heater
+      state: 'off'
   action:
     - service: switch.turn_off
       entity_id: switch.motion_sensor
@@ -368,7 +493,88 @@
 #           POWER SAVING             #
 #                                    #
 ######################################
-
+- alias: 'Desk Timer start'
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.desk_timer_enabled
+    state: 'on'
+  action:
+    - service: timer.start
+      entity_id: timer.left_desk_timer
+      
+- alias: 'Heater Timer start'
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.desk_timer_enabled
+    state: 'on'
+  - condition: state
+    entity_id: switch.heater
+    state: 'on'
+  action:
+    - service: timer.start
+      entity_id: timer.heater_timer
+      
+- alias: 'Desk Lamp Timer start'
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'off'
+  condition:
+  - condition: state
+    entity_id: input_boolean.desk_timer_enabled
+    state: 'on'
+  - condition: state
+    entity_id: switch.desk_lamp
+    state: 'on'
+  action:
+    - service: timer.start
+      entity_id: timer.desk_lamp_timer
+      
+- alias: 'Back on desk Lamp'
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.desk_timer_enabled
+    state: 'on'
+  - condition: state
+    entity_id: timer.desk_lamp_timer
+    state: 'active'
+  action:
+    - service: switch.turn_on
+      entity_id: switch.desk_lamp
+    - service: timer.cancel
+      entity_id: timer.desk_lamp_timer
+      
+- alias: 'Back on desk Heater'
+  trigger:
+    platform: state
+    entity_id: input_boolean.desk_switch
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: input_boolean.desk_timer_enabled
+    state: 'on'
+  - condition: state
+    entity_id: timer.heater_timer
+    state: 'active'
+  action:
+    - service: switch.turn_on
+      entity_id: switch.heater
+    - service: timer.cancel
+      entity_id: timer.heater_timer
+    
+    
 #Turning things off
 - alias: Power Saving Fan OFF
   trigger:
