@@ -1,3 +1,34 @@
+################# NOT HOME ###################################
+
+- alias: Not Home turn off motion and lights
+  trigger:
+  - minutes: /5
+    platform: time_pattern
+  condition:
+    condition: template
+    value_template: "{{ not is_state('device_tracker.finns_iphone','home') }}"
+  action:
+  - entity_id: switch.motion_sensor
+    service: switch.turn_off
+  - entity_id: light.finns_bedroom
+    service: light.turn_off
+  - entity_id: switch.lamp
+    service: switch.turn_off
+  - entity_id: switch.desk_lamp
+    service: switch.turn_off
+
+################# RETURN HOME ###################################
+
+- alias: Home turn on motion sensor
+  trigger:
+  - platform: state
+    entity_id:
+    - device_tracker.finns_iphone
+    to: "home"
+  action:
+  - entity_id: switch.motion_sensor
+    service: switch.turn_on
+
 ################### SHUTTER SLIDER ##################################
 - alias: "Shutter 1 Slider Adjust"
   trigger:
