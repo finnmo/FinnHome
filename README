@@ -1,0 +1,18 @@
+# Home Automation:
+
+My goal for the last year is to make my personal bedroom as connected as possible. During the early stages of experimenting with outcomes it occured to me that not only should the room be smarter, but it should be eaiser. Taking on this idea meant all the devices implemented made my room more complicated 'under the hood' but it also meant i could interact with my room seamlessly, with minimal intervention.
+
+### How its going:
+Currently the only interaction I have with my home system is to turn off the lights when i go to bed. The rest of the time the room operates on its own. 
+
+
+### Implemented Automations:
+- Lights turn on when waking up
+- Lights turn off when getting into bed (except bedside lamp)
+- All devices turn off when leaving the room
+- Lights turn on when entering the room
+- Desk lamp turns on when sitting at desk
+
+
+### How:
+Homeassistant is the core of the setup.
